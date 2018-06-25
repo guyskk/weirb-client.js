@@ -1,0 +1,33 @@
+{
+    "name": "weirb-hrpc-client",
+    "version": "0.0.1",
+    "description": "Weirb-Hrpc client for Javascript",
+    "main": "dist/main.js",
+    "bin": {
+        "hrpc.js": "bin/hrpc.js"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "webpack"
+    },
+    "author": "guyskk",
+    "license": "MIT",
+    "dependencies": {
+        "@types/axios": "^0.14.0",
+        "@types/lodash": "^4.14.110",
+        "@types/node": "^10.3.5",
+        "axios": "^0.18.0",
+        "lodash": "^4.17.10"
+    },
+    "devDependencies": {
+        "@types/ejs": "^2.6.0",
+        "awesome-typescript-loader": "^5.2.0",
+        "commander": "^2.15.1",
+        "copy-webpack-plugin": "^4.5.1",
+        "ejs": "^2.6.1",
+        "source-map-loader": "^0.2.3",
+        "typescript": "^2.9.2",
+        "webpack": "^4.12.1",
+        "webpack-command": "^0.2.1"
+    }
+}
