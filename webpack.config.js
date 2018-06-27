@@ -1,15 +1,14 @@
 const path = require('path');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-const ClientConfig = {
+module.exports = {
     mode: 'production',
-    entry: "./src/index.ts",
+    entry: ["babel-polyfill", "./src/index.js"],
     target: 'web',
     output: {
-        library: "weirbHrpcClient",
+        library: "WeirbClient",
         libraryTarget: "umd",
         path: path.resolve(__dirname, 'dist'),
-        filename: "main.js",
+        filename: "WeirbClient.js",
     },
     externals: {
         axios: {
@@ -19,45 +18,23 @@ const ClientConfig = {
             root: 'axios'
         },
     },
-    // Enable sourcemaps for debugging webpack's output.
     devtool: "source-map",
-    resolve: {
-        // Add '.ts' and '.tsx' as resolvable extensions.
-        extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
-    },
     module: {
-        rules: [
-            // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
-            { test: /\.tsx?$/, use: "awesome-typescript-loader" },
-            // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-            { test: /\.js$/, use: "source-map-loader" },
-        ]
-    },
+        rules: [{
+            test: /\.js$/,
+            exclude: /(node_modules|bower_components)/,
+            use: {
+                loader: 'babel-loader',
+                options: {
+                    presets: [
+                        ["env", {
+                            "targets": {
+                                "browsers": "> 1%, last 2 versions"
+                            }
+                        }]
+                    ]
+                }
+            }
+        }]
+    }
 }
-
-const GeneratorConfig = {
-    mode: 'production',
-    entry: "./src/generator.ts",
-    target: 'node',
-    output: {
-        libraryTarget: "commonjs",
-        path: path.resolve(__dirname, 'dist'),
-        filename: "generator.js",
-    },
-    // Enable sourcemaps for debugging webpack's output.
-    devtool: "source-map",
-    resolve: {
-        // Add '.ts' and '.tsx' as resolvable extensions.
-        extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
-    },
-    module: {
-        rules: [
-            // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
-            { test: /\.tsx?$/, use: "awesome-typescript-loader" },
-            // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-            { test: /\.js$/, use: "source-map-loader" },
-        ]
-    },
-}
-
-module.exports = [ClientConfig, GeneratorConfig];

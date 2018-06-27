@@ -1,33 +1,27 @@
 {
-    "name": "weirb-hrpc-client",
+    "name": "weirb-client",
     "version": "0.0.1",
-    "description": "Weirb-Hrpc client for Javascript",
+    "description": "Weirb client for Javascript",
     "main": "dist/main.js",
-    "bin": {
-        "hrpc.js": "bin/hrpc.js"
-    },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "webpack"
+        "test": "./node_modules/.bin/webpack --mode development && ./node_modules/.bin/jest",
+        "build": "./node_modules/.bin/webpack"
     },
     "author": "guyskk",
     "license": "MIT",
     "dependencies": {
-        "@types/axios": "^0.14.0",
-        "@types/lodash": "^4.14.110",
-        "@types/node": "^10.3.5",
-        "axios": "^0.18.0",
-        "lodash": "^4.17.10"
+        "axios": "^0.18.0"
     },
     "devDependencies": {
-        "@types/ejs": "^2.6.0",
-        "awesome-typescript-loader": "^5.2.0",
-        "commander": "^2.15.1",
-        "copy-webpack-plugin": "^4.5.1",
-        "ejs": "^2.6.1",
-        "source-map-loader": "^0.2.3",
-        "typescript": "^2.9.2",
-        "webpack": "^4.12.1",
-        "webpack-command": "^0.2.1"
-    }
+        "babel-core": "^6.26.3",
+        "babel-loader": "^7.1.4",
+        "babel-polyfill": "^6.26.0",
+        "babel-preset-env": "^1.7.0",
+        "eslint": "^5.0.1",
+        "jest": "^23.2.0",
+        "lodash-es": "^4.17.10",
+        "webpack": "^4.12.2",
+        "webpack-cli": "^3.0.8"
+    },
+    "sideEffects": false
 }
