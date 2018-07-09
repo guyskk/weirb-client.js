@@ -1,114 +1,93 @@
-import "babel-polyfill";
-import axios from 'axios';
-import * as lodash from 'lodash-es';
+import axios from 'axios'
+import * as lodash from 'lodash-es'
 
 
-class HrpcError extends Error {
+function _extractErrorCode(headers) {
+    for (let [k, v] of lodash.toPairs(headers)) {
+        if (lodash.toLower(k) === 'service-error') {
+            return v
+        }
+    }
+    return null
+}
+
+
+class ServiceError extends Error {
 
     constructor(httpError) {
-        super(httpError.message);
-        this.origin = httpError;
-        this.request = httpError.request;
-        this.response = httpError.response;
-        this.config = httpError.config;
-        let code = null;
-        let message = null;
-        let data = null;
+        super(httpError.message)
+        this.request = httpError.request
+        this.response = httpError.response
+        this.config = httpError.config
+        let code = null
+        let message = null
+        let data = null
         if (!lodash.isNil(this.response)) {
-            code = this._extractErrorCode(this.response.headers);
+            code = _extractErrorCode(this.response.headers)
             if (lodash.isNil(code)) {
-                code = 'Hrpc.HttpError';
+                code = 'Service.HttpError'
             } else {
-                message = this.response.data.message;
-                data = this.response.data.data;
+                message = this.response.data.message
+                data = this.response.data.data
             }
         }
         if (lodash.isNil(message)) {
-            message = httpError.message;
+            message = httpError.message
         }
-        message = lodash.trim(lodash.toString(message));
-        this.code = code;
-        this.message = message;
-        this.data = data;
-    }
-
-    _extractErrorCode(headers) {
-        for (let [k, v] of lodash.toPairs(headers)) {
-            if (lodash.toLower(k) === 'hrpc-error') {
-                return v;
-            }
-        }
-        return null;
+        message = lodash.trim(lodash.toString(message))
+        this.code = code
+        this.message = message
+        this.data = data
     }
 
 }
 
-class PreparedRequest {
 
-    constructor(client, config) {
-        this.client = client;
-        this.config = config;
-    }
+class WeirbClient {
 
-    async result() {
-        let res = null;
-        try {
-            res = await this.response();
-        } catch (httpError) {
-            throw new HrpcError(httpError);
-        }
-        console.log(res);
-        return res.data;
-    }
-
-    async response() {
-        return await this.client.axios.request(this.config);
-    }
-
-}
-
-class AxiosClient {
-
-    constructor(baseURL, config = null) {
+    constructor(baseURLOrConfig, config = undefined) {
         if (lodash.isNil(config)) {
-            config = {};
+            config = {}
         }
-        if (lodash.isNil(config.baseURL)) {
-            config.baseURL = baseURL;
+        if (lodash.isString(baseURLOrConfig)) {
+            config.baseURL = baseURLOrConfig
+        } else if (!lodash.isNil(baseURLOrConfig)) {
+            lodash.assign(config, baseURLOrConfig)
         }
-        if (lodash.isNil(config.timeout)) {
-            config.timeout = 10000;
-        }
-        if (lodash.isNil(config.withCredentials)) {
-            config.withCredentials = true;
-        }
-        this.axios = axios.create(config);
+        this.axios = axios.create(config)
+        this.axios.interceptors.response.use(undefined, this._onError)
+        lodash.assign(this, this.axios)
     }
 
-    call(endpoint, params, config = null) {
+    _onError(error) {
+        return Promise.reject(new ServiceError(error))
+    }
+
+    async call(url, params = undefined, config = undefined) {
         if (lodash.isNil(config)) {
-            config = {};
+            config = {}
         }
-        let [service, method] = lodash.split(endpoint, '.', 2);
-        config.url = `${service}/${method}`;
-        config.method = 'POST';
-        if (params !== null && params !== undefined) {
-            config.data = JSON.stringify(params);
+        config.url = url
+        config.method = 'POST'
+        if (!lodash.isNil(params)) {
+            config.data = JSON.stringify(params)
         }
         if (lodash.isNil(config.headers)) {
-            config.headers = {};
+            config.headers = {}
         }
-        config.headers['Content-Type'] = 'application/json;charset=utf-8';
-        return this.request(config);
+        config.headers['Content-Type'] = 'application/json;charset=utf-8'
+        let response = await this.request(config)
+        return response.data
     }
 
-    request(config) {
-        return new PreparedRequest(this, config);
-    }
+}
 
+function create(baseURLOrConfig, config = undefined) {
+    return new WeirbClient(baseURLOrConfig, config)
 }
 
 export {
-    HrpcError,
-    AxiosClient
-};
+    ServiceError,
+    WeirbClient,
+    create
+}

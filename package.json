@@ -1,26 +1,37 @@
 {
     "name": "weirb-client",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "description": "Weirb client for Javascript",
-    "main": "dist/main.js",
+    "main": "dist/weirb-client.js",
     "scripts": {
-        "test": "./node_modules/.bin/webpack --mode development && ./node_modules/.bin/jest",
-        "build": "./node_modules/.bin/webpack"
+        "test": "./node_modules/.bin/karma start",
+        "build": "NODE_ENV=production ./node_modules/.bin/webpack",
+        "build-dev": "./node_modules/.bin/webpack --mode development",
+        "server": "node server.js",
+        "analyz": "WEBPACK_ANALYZ=true npm_config_report=true npm run build"
     },
     "author": "guyskk",
     "license": "MIT",
     "dependencies": {
-        "axios": "^0.18.0"
+        "axios": "^0.18.0",
+        "babel-runtime": "^6.26.0"
     },
     "devDependencies": {
         "babel-core": "^6.26.3",
         "babel-loader": "^7.1.4",
-        "babel-polyfill": "^6.26.0",
+        "babel-plugin-transform-runtime": "^6.23.0",
         "babel-preset-env": "^1.7.0",
+        "body-parser": "^1.18.3",
+        "cors": "^2.8.4",
         "eslint": "^5.0.1",
-        "jest": "^23.2.0",
+        "express": "^4.16.3",
+        "jasmine-core": "^3.1.0",
+        "karma": "^2.0.4",
+        "karma-chrome-launcher": "^2.2.0",
+        "karma-jasmine": "^1.1.2",
         "lodash-es": "^4.17.10",
         "webpack": "^4.12.2",
+        "webpack-bundle-analyzer": "^2.13.1",
         "webpack-cli": "^3.0.8"
     },
     "sideEffects": false

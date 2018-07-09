@@ -1,14 +1,32 @@
-const path = require('path');
+const path = require('path')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+
+const plugins = []
+
+if (process.env['WEBPACK_ANALYZ'] === 'true') {
+    plugins.push(new BundleAnalyzerPlugin({
+        analyzerMode: 'server',
+        analyzerHost: '127.0.0.1',
+        analyzerPort: 8889,
+        reportFilename: 'report.html',
+        defaultSizes: 'parsed',
+        openAnalyzer: true,
+        generateStatsFile: false,
+        statsFilename: 'stats.json',
+        statsOptions: null,
+        logLevel: 'info'
+    }))
+}
 
 module.exports = {
     mode: 'production',
-    entry: ["babel-polyfill", "./src/index.js"],
+    entry: ['./src/index.js'],
     target: 'web',
     output: {
-        library: "WeirbClient",
-        libraryTarget: "umd",
+        library: 'WeirbClient',
+        libraryTarget: 'umd',
         path: path.resolve(__dirname, 'dist'),
-        filename: "WeirbClient.js",
+        filename: 'weirb-client.js',
     },
     externals: {
         axios: {
@@ -18,7 +36,8 @@ module.exports = {
             root: 'axios'
         },
     },
-    devtool: "source-map",
+    plugins: plugins,
+    devtool: 'source-map',
     module: {
         rules: [{
             test: /\.js$/,
@@ -27,11 +46,22 @@ module.exports = {
                 loader: 'babel-loader',
                 options: {
                     presets: [
-                        ["env", {
-                            "targets": {
-                                "browsers": "> 1%, last 2 versions"
+                        ['env', {
+                            'modules': false,
+                            'targets': {
+                                'browsers': '> 1%, last 2 versions'
                             }
                         }]
+                    ],
+                    'plugins': [
+                        [
+                            'transform-runtime', {
+                                'helpers': false,
+                                'polyfill': false,
+                                'regenerator': true,
+                                'moduleName': 'babel-runtime'
+                            }
+                        ]
                     ]
                 }
             }
