@@ -1,19 +1,7 @@
 import axios from 'axios'
 import * as lodash from 'lodash-es'
 
-
-function _extractErrorCode(headers) {
-    for (let [k, v] of lodash.toPairs(headers)) {
-        if (lodash.toLower(k) === 'service-error') {
-            return v
-        }
-    }
-    return null
-}
-
-
 class ServiceError extends Error {
-
     constructor(httpError) {
         super(httpError.message)
         this.request = httpError.request
@@ -23,10 +11,8 @@ class ServiceError extends Error {
         let message = null
         let data = null
         if (!lodash.isNil(this.response)) {
-            code = _extractErrorCode(this.response.headers)
-            if (lodash.isNil(code)) {
-                code = 'Service.HttpError'
-            } else {
+            code = this.response.headers['service-error']
+            if (!lodash.isNil(code)) {
                 message = this.response.data.message
                 data = this.response.data.data
             }
@@ -39,12 +25,9 @@ class ServiceError extends Error {
         this.message = message
         this.data = data
     }
-
 }
 
-
 class WeirbClient {
-
     constructor(baseURLOrConfig, config = undefined) {
         if (lodash.isNil(config)) {
             config = {}
@@ -69,9 +52,10 @@ class WeirbClient {
         }
         config.url = url
         config.method = 'POST'
-        if (!lodash.isNil(params)) {
-            config.data = JSON.stringify(params)
+        if (lodash.isNil(params)) {
+            params = {}
         }
+        config.data = JSON.stringify(params)
         if (lodash.isNil(config.headers)) {
             config.headers = {}
         }
@@ -79,15 +63,10 @@ class WeirbClient {
         let response = await this.request(config)
         return response.data
     }
-
 }
 
 function create(baseURLOrConfig, config = undefined) {
     return new WeirbClient(baseURLOrConfig, config)
 }
 
-export {
-    ServiceError,
-    WeirbClient,
-    create
-}
+export { ServiceError, WeirbClient, create }
